@@ -2,15 +2,14 @@
 
 from profile import *
 
-lines = [
-    Bind('w', '+forward'),
-    Bind('a', '+moveleft'),
-    Bind('s', '+back'),
-    Bind('d', '+moveright'),
-    Bind('space', '+jump'),
-    Bind('enter', 'say_team'),
-    Exec('binds.cfg')
+my_specs = [
+    Map('w', '+forward'),
+    Map('a', '+moveleft'),
+    Map('s', '+back'),
+    Map('d', '+moveright'),
+    Map('space', '+jump'),
+    Map('enter', 'say_team'),
 ]
 
-prof = Profile(*lines)
-print(prof)
+prof = Profile(*my_specs)
+print(prof)  # ... profile.output or something?

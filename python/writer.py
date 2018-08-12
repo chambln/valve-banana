@@ -1,7 +1,7 @@
 # writer.py
 
 class Script(object):
-    '''Represents a .cfg file as a list of lines of low-level code'''
+    '''Represents a cfg file as a list of lines of low-level code'''
 
     def __init__(self, *lines):
         self.lines = lines
@@ -38,3 +38,40 @@ class Sentence(object):
     @property
     def dimension(self):
         return len(self.args)
+
+
+class Bind(Sentence):
+    '''Represents a bind command; i.e. bind <key> <action>'''
+
+    def __init__(self, key, action):
+        super().__init__('bind', key, action)
+
+
+class Unbind(Sentence):
+    '''Represents an unbind command; i.e. unbind <key>'''
+
+    def __init__(self, key):
+        super().__init__('unbind', key)
+
+
+class Exec(Sentence):
+    '''Represents a script execution command; i.e. exec <ref>; where ref points 
+    to the script you want to execute'''
+
+    def __init__(self, ref):
+        super().__init__('exec', ref)
+
+
+class Alias(Sentence):
+    '''Represents an alias name; i.e. alias <alias> <action>'''
+
+    def __init__(self, alias, action):
+        super().__init__('alias', alias, action)
+
+
+class Cvar(Sentence):
+    '''Represents a game variable assignment; i.e. <cvar> <args>*. This is 
+    really just an arbitrary Sentence.'''
+
+    def __init__(self, cvar, *args):
+        super().__init__(cvar, *args)
