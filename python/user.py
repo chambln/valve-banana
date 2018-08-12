@@ -1,15 +1,19 @@
 # user.py (exemplar)
 
 from profile import *
+from pprint import pprint
 
-my_specs = [
-    Map('w', '+forward'),
-    Map('a', '+moveleft'),
-    Map('s', '+back'),
-    Map('d', '+moveright'),
-    Map('space', '+jump'),
-    Map('enter', 'say_team'),
-]
 
-prof = Profile(*my_specs)
-print(prof)  # ... profile.output or something?
+p = Profile()
+
+p.map('w', '+forward'),
+p.map('a', '+moveleft'),
+p.map('s', '+back'),
+p.map('d', '+moveright'),
+p.map('space', '+jump'),
+p.map('enter', 'say')
+p.map('shift-enter', 'say_team')
+p.map('ctrl-k', 'kill')
+p.map('ctrl-shift-s', 'exec sandbox.cfg')
+
+pprint(p.keymap.keymap)
