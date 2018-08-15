@@ -14,9 +14,11 @@ class Keeb:
         return str(self.pack())
 
     def map(self, *args):
+        '''Add a new complex key mapping'''
         self.maps.append(Map(*args))
 
     def pack(self):
+        '''Organise this instance's maps into a single data structure'''
         pack = {}
         for m in self.maps:
             mods = m.keycombo.modifiers
