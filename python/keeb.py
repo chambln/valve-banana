@@ -13,6 +13,9 @@ class Keeb:
     def __str__(self):
         return str(self.pack())
 
+    def __len__(self):
+        return len(self.maps)
+
     def map(self, *args):
         '''Add a new complex key mapping'''
         self.maps.append(Map(*args))
@@ -69,15 +72,15 @@ class Keycombo:
         return self.keys[-1]
 
 
-# TESTING
-k = Keeb()
-
-k.map('enter', 'say')
-k.map('shift-enter', 'say_team')
-k.map('w', '+forward')
-k.map('s', '+back')
-k.map('a', '+moveleft')
-k.map('d', '+moveright')
-k.map('space', '+jump')
-
-print(k)
+## TESTING
+#k = Keeb()
+#
+#k.map('enter', 'say')
+#k.map('shift-enter', 'say_team')
+#k.map('w', '+forward')
+#k.map('s', '+back')
+#k.map('a', '+moveleft')
+#k.map('d', '+moveright')
+#k.map('space', '+jump')
+#
+#print(k)
