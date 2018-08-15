@@ -11,13 +11,13 @@ class Keeb:
         return str(self)
 
     def __str__(self):
-        return str(self.build())
+        return str(self.pack())
 
     def map(self, *args):
         self.maps.append(Map(*args))
 
-    def build(self):
-        keeb = {}
+    def pack(self):
+        pack = {}
         for m in self.maps:
             mods = m.keycombo.modifiers
             final = m.keycombo.final
@@ -26,10 +26,10 @@ class Keeb:
                 mod = mods[0]
             else:
                 mod = 'none'
-            if mod not in keeb:
-                keeb[mod] = {}
-            keeb[mod][final] = m.action
-        return keeb
+            if mod not in pack:
+                pack[mod] = {}
+            pack[mod][final] = m.action
+        return pack
 
 
 class Map:
