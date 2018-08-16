@@ -1,5 +1,7 @@
 # cfg.py
 
+import os
+
 
 class Cfg:
     '''
@@ -7,39 +9,55 @@ class Cfg:
     Lines are added by keyword (bind, alias, etc.).
     '''
     
-    def __init__(self, *lines):
+    def __init__(self, path, *lines):
+        self.path = path
         self.lines = list(lines)
-
-    def __repr__(self):
-        return str(self)
-
-    def __str__(self):
-        return '\n'.join([str(line) for line in self.lines])
 
     def __add__(self):
         return Cfg(*(self.lines + other.lines))
+
+    def __repr__(self):
+        return "./{}.cfg with {} lines".format(self.path, len(self))
+
+    def __len__(self):
+        return len(self.lines)
+
+    def __bool__(self):
+        return bool(self.lines)
 
     def __iter__(self):
         for line in self.lines:
             yield line
 
+    def __getitem__(self, key):
+        return self.lines[key]
+
+    # Input
     def append(self, line):
         self.lines.append(line)
 
-    def bind(self, *args):
-        self.append(Bind(*args))
+    # Append lines by keyword
+    def   bind(self, *args):    self.append(  Bind(*args))
+    def unbind(self, *args):    self.append(Unbind(*args))
+    def  alias(self, *args):    self.append( Alias(*args))
+    def   exec(self, *args):    self.append(  Exec(*args))
+    def   cvar(self, *args):    self.append(  Cvar(*args))
 
-    def unbind(self, *args):
-        self.append(Unbind(*args))
+    # Output
+    def __str__(self):
+        '''This is the final string output that you'd write to a file'''
+        return '\n'.join([str(line) for line in self])
 
-    def alias(self, *args):
-        self.append(Alias(*args))
-
-    def exec(self, *args):
-        self.append(Exec(*args))
-
-    def cvar(self, *args):
-        self.append(Cvar(*args))
+    def write(self):
+        # Create my path's directory if it doesn't exist already
+        dirname = os.path.dirname(self.path)
+        if dirname and not os.path.exists(dirname):
+            os.makedirs(dirname)
+            print('Made directory {}/'.format(dirname))
+        # Write my string to my path
+        with open(self.path+'.cfg', 'w') as f:
+            f.write(str(self))
+            print('Wrote {} lines to {}.cfg'.format(len(self), self.path))
 
 
 class Sentence:
@@ -53,7 +71,8 @@ class Sentence:
         self.args = args
 
     def __repr__(self):
-        return str(self)
+        args = ', '.join(self.args)
+        return '{}({})'.format(self.__class__.__name__, args)
 
     def __str__(self):
         return self.syntax.format(*self.args)
@@ -104,7 +123,7 @@ class Alias(Sentence):
 
 class Exec(Sentence):
     '''
-    Represents a line of low-level cfg code, specifically an instruction 
+    Represents a line of low-level cfg code, specifically an instruction
     to execute another script by reference, i.e. exec <ref>
     '''
     
@@ -121,12 +140,12 @@ class Cvar(Sentence):
     def __init__(self, cvar, *values):
         super().__init__(cvar, *values)
 
-
+#
 ## TESTING
 ## =======
 #
 ## init.cfg
-#init = Cfg()
+#init = Cfg('init')
 #init.unbind('tab')
 #keymap = {
 #    'enter': 'say',
@@ -142,22 +161,17 @@ class Cvar(Sentence):
 #init.alias('+_shift', 'exec bind/shift_dn')
 #init.alias('-_shift', 'exec bind/shift_up')
 #init.cvar('setvideomode', '1920', '1080', '1')
-##with open('init.cfg', 'w') as f:
-##    f.write(str(init))
+#print('\n{}:'.format(repr(init)))
 #print(init)
 #
 ## shift_dn.cfg
-#shift_dn = Cfg()
+#shift_dn = Cfg('shift_dn')
 #shift_dn.bind('enter', 'say_team')
-##with open('shift_dn.cfg', 'w') as f:
-##    f.write(str(shift_dn))
-#print()
+#print('\n{}:'.format(repr(shift_dn)))
 #print(shift_dn)
 #
 ## shift_up.cfg
-#shift_up = Cfg()
+#shift_up = Cfg('shift_up')
 #shift_up.bind('enter', 'say')
-##with open('shift_up.cfg', 'w') as f:
-##    f.write(str(shift_up))
-#print()
+#print('\n{}:'.format(repr(shift_up)))
 #print(shift_up)
