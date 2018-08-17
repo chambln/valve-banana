@@ -71,7 +71,7 @@ class Sentence:
         self.args = args
 
     def __repr__(self):
-        args = ', '.join(self.args)
+        args = ', '.join([repr(arg) for arg in self.args[1:]])
         return '{}({})'.format(self.__class__.__name__, args)
 
     def __str__(self):
@@ -140,6 +140,11 @@ class Cvar(Sentence):
     def __init__(self, cvar, *values):
         super().__init__(cvar, *values)
 
+    def __repr__(self):
+        args = ', '.join([repr(arg) for arg in self.args])
+        return '{}({})'.format(self.__class__.__name__, args)
+
+
 #
 ## TESTING
 ## =======
@@ -147,7 +152,7 @@ class Cvar(Sentence):
 ## init.cfg
 #init = Cfg('init')
 #init.unbind('tab')
-#keymap = {
+#mybinds = {
 #    'enter': 'say',
 #    'w': '+forward',
 #    's': '+back',
@@ -156,7 +161,7 @@ class Cvar(Sentence):
 #    'space': '+jump',
 #    'shift': '+_shift'
 #}
-#for key, sen in keymap.items():
+#for key, sen in mybinds.items():
 #   init.bind(key, sen)
 #init.alias('+_shift', 'exec bind/shift_dn')
 #init.alias('-_shift', 'exec bind/shift_up')
