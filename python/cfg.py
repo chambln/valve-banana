@@ -35,6 +35,8 @@ class Cfg:
     # Input
     def append(self, line):
         self.lines.append(line)
+        # Print this for debugging purposes
+        print('appended' line, 'to', self.path)
 
     # Append lines by keyword
     def   bind(self, *args):    self.append(  Bind(*args))
@@ -81,7 +83,7 @@ class Sentence:
     def syntax(self):
         '''
         Return the command keyword followed by space-separated 
-        parameters, but only quote the last one.
+        arguments, but only quote the last one.
         '''
         n = self.dimension - 1      # Number of unquoted parameters
         return n * '{} ' + '"{}"'   # Quote only the last parameter
@@ -97,8 +99,9 @@ class Bind(Sentence):
     sentence, i.e. bind <key> <sentence>
     '''
 
-    def __init__(self, key, action):
-        super().__init__('bind', key, action)
+    def __init__(self, key, *actions):
+        self.actions = actions
+        super().__init__('bind', key, '; '.join(self.actions))
 
 
 class Unbind(Sentence):

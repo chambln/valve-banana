@@ -1,6 +1,6 @@
 # keymap.py
 
-import cfg
+from cfg import Cfg
 
 class Keymap:
     '''
@@ -11,8 +11,8 @@ class Keymap:
     def __init__(self, *maps):
         self.maps = list(maps)
 
-    def append(self, element):
-        self.maps.append(element)
+    def append(self, map_):
+        self.maps.append(map_)
 
     def map(self, *args):
         self.append(Map(*args))
@@ -42,37 +42,63 @@ class Keymap:
             pack[mod][final] = map_.action
         return pack
 
-    def build_master(self):
-        pack = self.pack()
-        master = cfg.Cfg('master')
-        for keyname, action in pack.pop('').items():
-            master.bind(keyname, action)
+    @property
+    def master(self):
+        '''Returns the subpack for which no modifiers are held'''
+        return self.pack()['']  # Empty string represents no modifiers
+
+    def build_group(self, modifier, subpack):
+        '''
+        Turns a modifier's part of the pack into a group of files that 
+        implement it as a modifier keymap.
+
+        Parameters:
+            - modifier: single source engine keyname for the modifier 
+              key.
+            - subpack: dictionary keymap for which each key is a single 
+              source engine keyname and the corresponding value is the 
+              action it should produce.
+
+        Returns (e.g. modifier='shift'):
+            - Cfg('shift_dn')  -> Holds modified bindings
+            - Cfg('shift_up')  -> Holds corresponding non-mod bindings
+        '''
+        # Initialise my UP and DOWN files for this group
+        dn = Cfg(modifier+'_dn')
+        up = Cfg(modifier+'_up')
+        # I will need my master keymap for testing against later
+        master = self.master
+        for keyname, action in subpack.items():
+            # Put this binding in my DOWN file
+            dn.bind(keyname, action)
+            if keyname in master:
+                # If it exists, put the correspoding master binding into 
+                # my UP file
+                up.bind(keyname, master[keyname])
+        # Print for debugging purposes
         print('Built', repr(master))
-        return master
+        return dn, up
 
     def build(self):
         '''
-        For each true modifier 'foo', create
-          - Cfg('foo_dn')  -> Holds modified bindings
-          - Cfg('foo_up')  -> Holds corresponding non-mod bindings
-        ''' # TODO: make this docstring more formal
-
+        Collect the built master and group keymaps to implement this 
+        keymap.
+        '''
         # We will build a list of instances of cfg.Cfg
         files = []
-
         # Pack myself up
         pack = self.pack()
-
-        # First: Separate my master (no modifiers) keymap from the rest
-        files.append(self.build_master())
-        
-        # Second: Generate my modifier keymaps
-        for mod, keymap in self.pack().items():
-            pass
-
+        # First: Separate my master keymap (no modifiers) from the rest
+        files.append(self.build_group())
+        # Second: Build a group for each of my modifiers
+        for modifier, subpack in pack.items():
+            files.append(*self.build_group(modifier, subpack))
         # Finally, return the list of files
         print(files)
         return files
+
+    def write(self):
+        # build each build thingy iteratively shouldo nly take a ew lines
 
 
 class Map:
