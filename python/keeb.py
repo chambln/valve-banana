@@ -17,6 +17,7 @@ class Keymap(object):
 
     def __getitem__(self, key):
         if key not in self.keymap:
+            # Fill out with dictionaries where needed
             self.keymap[key] = {}
         return self.keymap[key]
 
@@ -84,6 +85,7 @@ def test_Keymap():
     k.map('w', '+forward')
     k.map('enter', 'say')
     k.map('shift-enter', 'say_team')
+    k.map('', 'exec sandbox')
     #k.map('ctrl-shift-enter', 'gg')
     print('repr(k) ==', repr(k))
 
