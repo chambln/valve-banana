@@ -21,7 +21,7 @@ class Keymap(dict):
 
     def build(self):
         # Isolate the master bindings
-        self.master = KeymapBlank(**self.pop(''))
+        self.master = self.pop('')
 
         # Implement master bindings and aliases as nomod
         nomod = low.Cfg([
@@ -36,15 +36,17 @@ class Keymap(dict):
                 low.Bind(key, val)
                 for key, val in modmap.items()
             ])
-            dn.path = mod + '_dn'
+            dn.path = 'bind/' + mod + '_dn'
             dn.write(dn.path)
 
             # Up script to restore those binds
             up = low.Cfg([
                 low.Bind(key, self.master[key])
+                if key in self.master
+                else low.Unbind(key)
                 for key in modmap
             ])
-            up.path = mod + '_up'
+            up.path = 'bind/' + mod + '_up'
             up.write(up.path)
 
             # Append necessary master bindings
@@ -57,15 +59,7 @@ class Keymap(dict):
             ]
 
         # Finally write the master script now that it's ready
-        nomod.write('nomod')
-
-
-class KeymapBlank(dict):
-    '''Subclass of dict for which missing keys become an empty string'''
-    def __missing__(self, key):
-        self[key] = ''
-        return self[key]
-
+        nomod.write('bind/nomod')
 
 
 def test():
@@ -73,7 +67,7 @@ def test():
     k.map('enter', 'say')
     k.map('shift-enter', 'say_team')
     k.map('ctrl-enter', 'say ggwp')
-    k.map('alt-k', 'kill')
+    k.map('ctrl-k', 'kill')
     k.map('w', '+forward')
     k.map('a', '+moveleft')
     k.map('s', '+back')
