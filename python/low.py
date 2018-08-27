@@ -1,13 +1,19 @@
 # low.py
 
-import os.path
+import os
 
 
 class Cfg(list):
     def write(self, path):
+        # Use .cfg unless another extension is provided for some reason
         root, ext = os.path.splitext(path)
         if not ext:
             path = root + '.cfg'
+        # Create path's containing directory if it doesn't already exist
+        dirname = os.path.dirname(path)
+        if dirname and not os.path.exists(dirname):
+            os.makedirs(dirname)
+        # Finally, write to file
         with open(path, 'w') as cfg:
             for line in self:
                 cfg.write(str(line) + '\n')
