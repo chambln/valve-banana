@@ -16,42 +16,39 @@ class Cfg(list):
 class Command(list):
     '''Generic command. Also used for cvar commands since they have no prefix.'''
     def __init__(self, *args):
-        list.__init__(self, *args)
+        list.__init__(self, args)
 
     def __str__(self):
         if len(self) == 1:
             # Don't use quotes for singleton commands like unbindall
             return self[0]
         else:
-            # Quote only the final argument
-            final = '"{}"'.format(self[-1])
+            # Quote only the final arg, removing any existing quotes
+            final = '"{}"'.format(str(self[-1]).replace('"', ''))
             return ' '.join(self[:-1] + [final])
 
 
-class Echo(Command):
-    def __init__(self, msg):
-        super().__init__(('echo', msg))
-        
-class Exec(Command):
-    def __init__(self, path):
-        super().__init__(('exec', path))
-        
-class Alias(Command):
-    def __init__(self, alias, cmd):
-        super().__init__(('alias', alias, cmd))
-        
-class Bind(Command):
-    def __init__(self, key, cmd):
-        super().__init__(('bind', key, cmd))
+class Prefix(Command):
+    prefix = 'PREFIX'
+    def __init__(self, *args):
+        super().__init__(self.prefix, *args)
 
-class Unbind(Command):
-    def __init__(self, key):
-        super().__init__(('unbind', key))
 
-class Unbindall(Command):
-    def __init__(self):
-        super().__init__(('unbindall',))
+class Echo(Prefix):
+    prefix = 'echo'
         
+class Exec(Prefix):
+    prefix = 'exec'
+        
+class Alias(Prefix):
+    prefix = 'alias'
+        
+class Bind(Prefix):
+    prefix = 'bind'
+
+class Unbind(Prefix):
+    prefix = 'unbind'
+
 
 def test_bind():
     b = Bind('q', 'drop')
@@ -60,6 +57,12 @@ def test_bind():
     print(u)
     e = Echo('foo')
     print(e)
+    unbindall = Command('unbindall')
+    print(unbindall)
+    p = Prefix('foo', 'bar')
+    print(p)
+    nested = Bind('p', Exec('myscript.cfg'))
+    print(nested)
 
 def test_command():
     c = Command(('unbindall',))

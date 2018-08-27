@@ -19,47 +19,64 @@ class Keymap(dict):
             mod = keys[0]
         self[mod][final] = value
 
-    def build_(self):
-        # First, handle master bindings if any
-        if '' in self:
-            binds = [low.Command(('bind', key, val))
-                     for key, val in self[''].items()]
-            master = low.Cfg(binds)
-            master.write('master')
-            self.master = self['']
-            del self['']
-        # Then handle any modified bindings
-        for mod, mapdict in self.items():
-            print(mod, mapdict)
-            up = low.Cfg([low.Command(('bind', key, self.master[key])) 
-                          for key in mapdict])
-            dn = low.Cfg([low.Command(('bind', key, val))
-                          for key, val in mapdict.items()])
-            dn.write(mod + '_dn')
-            up.write(mod + '_up')
-
     def build(self):
         # Isolate the master bindings
-        self.master = self.pop('')
-        # Handle modified bindings
-        for mod, mapdict in self.items():
+        self.master = Master(**self.pop(''))
+
+        # Implement master bindings and aliases as nomod
+        nomod = low.Cfg([
+            low.Bind(key, val)
+            for key, val in self.master.items()
+        ])
+
+        # Implement each modifier's bindings
+        for mod, modmap in self.items():
+            # Down script to effect modified binds
             dn = low.Cfg([
                 low.Bind(key, val)
-                for key, val in mapdict.items()
+                for key, val in modmap.items()
             ])
+            dn.path = mod + '_dn'
+            dn.write(dn.path)
+
+            # Up script to restore those binds
             up = low.Cfg([
                 low.Bind(key, self.master[key])
-                for key in mapdict
+                for key in modmap
             ])
-            dn.write(mod + '_dn')
-            up.write(mod + '_up')
-        # Handle master bindings and aliases
+            up.path = mod + '_up'
+            up.write(up.path)
+
+            # Append necessary master bindings
+            dn_alias = '+_'+mod
+            up_alias = '-_'+mod
+            nomod += [
+                low.Alias(dn_alias, low.Exec(dn.path)),
+                low.Alias(up_alias, low.Exec(up.path)),
+                low.Bind(mod, dn_alias)
+            ]
+
+        # Finally write the master script now that it's ready
+        nomod.write('nomod')
+
+
+class Master(dict):
+    def __missing__(self, key):
+        self[key] = ''
+        return self[key]
+
 
 
 def test():
     k = Keymap()
     k.map('enter', 'say')
     k.map('shift-enter', 'say_team')
+    k.map('ctrl-enter', 'say ggwp')
+    k.map('alt-k', 'kill')
+    k.map('w', '+forward')
+    k.map('a', '+moveleft')
+    k.map('s', '+back')
+    k.map('d', '+moveright')
     k.build()
 
 if __name__ == '__main__':
