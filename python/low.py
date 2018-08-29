@@ -40,20 +40,16 @@ class Prefix(Command):
         super().__init__(self.prefix, *args)
 
 
-class Echo(Prefix):
-    prefix = 'echo'
-        
-class Exec(Prefix):
-    prefix = 'exec'
-        
-class Alias(Prefix):
-    prefix = 'alias'
-        
-class Bind(Prefix):
-    prefix = 'bind'
-
-class Unbind(Prefix):
-    prefix = 'unbind'
+class Comment(Prefix):     prefix = '//'
+class Exec(Prefix):        prefix = 'exec'
+class Alias(Prefix):       prefix = 'alias'
+class Bind(Prefix):        prefix = 'bind'
+class Echo(Prefix):        prefix = 'echo'
+class Exec(Prefix):        prefix = 'exec'
+class Alias(Prefix):       prefix = 'alias'
+class Bind(Prefix):        prefix = 'bind'
+class Unbind(Prefix):      prefix = 'unbind'
+class BindToggle(Prefix):  prefix = 'BindToggle'
 
 
 def test_bind():
