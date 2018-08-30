@@ -8,7 +8,7 @@ class Keymap(dict):
         self[key] = {}
         return self[key]
 
-    def map(self, combo, value):
+    def map(self, combo, values):
         keys = combo.split('-')
         final = keys[-1]
         if len(keys) == 1:
@@ -74,5 +74,34 @@ def test():
     k.map('d', '+moveright')
     k.build()
 
+def test_multicmds():
+    k = Keymap()
+    k.map('F6', 'bot_kick', 'sv_cheats 1')
+    k.build()
+
+def test_hold():
+    k = Keymap()
+    k.down('tab', '+showscores',
+                 'net_graphtext 1',
+                 'cl_radar_scale 0.25',
+                 'cl_showpos 1')
+
+    k.up('tab', '-showscores',
+                 'net_graphtext 0',
+                 'cl_radar_scale 0.50',
+                 'cl_showpos 0')
+
+def test_hold_shorthand():
+    k = Keymap()
+    k.map('+tab', '+showscores',
+                  'net_graphtext 1',
+                  'cl_radar_scale 0.25',
+                  'cl_showpos 1')
+
+    k.map('-tab', '-showscores',
+                  'net_graphtext 0',
+                  'cl_radar_scale 0.50',
+                  'cl_showpos 0')
+
 if __name__ == '__main__':
-    test()
+    test_multicmds()

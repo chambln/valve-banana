@@ -4,6 +4,7 @@ import os
 
 
 class Cfg(list):
+    '''List of sentences to be written to a .cfg file'''
     def write(self, path):
         # Use .cfg unless another extension is provided for some reason
         root, ext = os.path.splitext(path)
