@@ -8,7 +8,7 @@ class Keymap(dict):
         self[key] = {}
         return self[key]
 
-    def map(self, combo, value)
+    def map(self, combo, *values):
         keys = combo.split('-')
         final = keys[-1]
         if len(keys) == 1:
@@ -17,7 +17,7 @@ class Keymap(dict):
         else:
             # Just take first of modifiers given
             mod = keys[0]
-        self[mod][final] = value
+        self[mod][final] = Command(*values)
 
     def build(self):
         # Separate master and modifier bindings
@@ -74,6 +74,11 @@ def test():
     k.map('d', '+moveright')
     k.build()
 
+def test_multicmds():
+    k = Keymap()
+    k.map('F6', 'bot_kick', 'sv_cheats 1')
+    k.build()
+
 def test_hold():
     k = Keymap()
     k.down('tab', '+showscores',
@@ -99,4 +104,4 @@ def test_hold_shorthand():
                   'cl_showpos 0')
 
 if __name__ == '__main__':
-    test()
+    test_multicmds()
