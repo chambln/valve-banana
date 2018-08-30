@@ -39,13 +39,14 @@ class Prefix(Command):
     def __init__(self, *args):
         super().__init__(self.prefix, *args)
 
-
+# Programmatically generate a subclass of Prefix for each supported
+# cfg command
 names = ('Comment', 'Exec', 'Alias', 'Bind', 'Echo', 'Exec', 'Alias', 
          'Bind', 'Unbind', 'BindToggle')
-
 for name in names:
     prefix = name.lower()
-    exec("{0} = type('{0}', (Prefix,), dict(prefix='{1}'))".format(name, prefix))
+    genstring = "{0} = type('{0}', (Prefix,), dict(prefix='{1}'))"
+    exec(genstring.format(name, prefix))
     
 
 def test_bind():
