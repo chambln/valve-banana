@@ -8,7 +8,7 @@ class Keymap(dict):
         self[key] = {}
         return self[key]
 
-    def map(self, combo, *values):
+    def map(self, combo, values):
         keys = combo.split('-')
         final = keys[-1]
         if len(keys) == 1:
@@ -17,7 +17,7 @@ class Keymap(dict):
         else:
             # Just take first of modifiers given
             mod = keys[0]
-        self[mod][final] = Command(*values)
+        self[mod][final] = value
 
     def build(self):
         # Separate master and modifier bindings
