@@ -40,29 +40,27 @@ class Prefix(Command):
         super().__init__(self.prefix, *args)
 
 
-class Comment(Prefix):     prefix = '//'
-class Exec(Prefix):        prefix = 'exec'
-class Alias(Prefix):       prefix = 'alias'
-class Bind(Prefix):        prefix = 'bind'
-class Echo(Prefix):        prefix = 'echo'
-class Exec(Prefix):        prefix = 'exec'
-class Alias(Prefix):       prefix = 'alias'
-class Bind(Prefix):        prefix = 'bind'
-class Unbind(Prefix):      prefix = 'unbind'
-class BindToggle(Prefix):  prefix = 'BindToggle'
+names = ('Comment', 'Exec', 'Alias', 'Bind', 'Echo', 'Exec', 'Alias', 
+         'Bind', 'Unbind', 'BindToggle')
 
+for name in names:
+    prefix = name.lower()
+    exec("{0} = type('{0}', (Prefix,), dict(prefix='{1}'))".format(name, prefix))
+    
 
 def test_bind():
     b = Bind('q', 'drop')
     print(b)
+
     u = Unbind('r')
     print(u)
+
     e = Echo('foo')
     print(e)
+
     unbindall = Command('unbindall')
     print(unbindall)
-    p = Prefix('foo', 'bar')
-    print(p)
+
     nested = Bind('p', Exec('myscript.cfg'))
     print(nested)
 
