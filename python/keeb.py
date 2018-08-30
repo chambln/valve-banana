@@ -20,17 +20,17 @@ class Keymap(dict):
         self[mod][final] = value
 
     def build(self):
-        # Isolate the master bindings
-        self.master = self.pop('')
+        # Separate master and modifier bindings
+        master, mods = self[''], {i: self[i] for i in self if i!=''}
 
         # Implement master bindings and aliases as nomod
         nomod = low.Cfg([
             low.Bind(key, val)
-            for key, val in self.master.items()
+            for key, val in master.items()
         ])
 
         # Implement each modifier's bindings
-        for mod, modmap in self.items():
+        for mod, modmap in mods.items():
             # Down script to effect modified binds
             dn = low.Cfg([
                 low.Bind(key, val)
@@ -41,8 +41,8 @@ class Keymap(dict):
 
             # Up script to restore those binds
             up = low.Cfg([
-                low.Bind(key, self.master[key])
-                if key in self.master
+                low.Bind(key, master[key])
+                if key in master
                 else low.Unbind(key)
                 for key in modmap
             ])
