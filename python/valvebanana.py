@@ -2,14 +2,11 @@
 
 from pprint import pprint
 
+
 class Cmd(tuple):
     def __str__(self):
         last = self[-1] if any('"' in x for x in self) else '"{}"'.format(self[-1])
         return ' '.join((*self[:-1], last))
-
-class Cfg(tuple):
-    def __str__(self):
-        return '\n'.join(self)
 
 
 class User(dict):
