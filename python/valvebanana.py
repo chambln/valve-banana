@@ -1,7 +1,5 @@
 # valvebanana.py
 
-from pprint import pprint
-
 
 class Cmd(tuple):
     def __str__(self):
