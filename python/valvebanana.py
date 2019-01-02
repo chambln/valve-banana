@@ -3,17 +3,11 @@
 from pprint import pprint
 
 class Cmd(tuple):
-    def __new__(self, *xs):
-        return tuple.__new__(self, xs)
-
     def __str__(self):
         last = self[-1] if any('"' in x for x in self) else '"{}"'.format(self[-1])
         return ' '.join((*self[:-1], last))
 
 class Cfg(tuple):
-    def __new__(self, *xs):
-        return tuple.__new__(self, xs)
-
     def __str__(self):
         return '\n'.join(self)
 
@@ -31,7 +25,7 @@ class User(dict):
         the Source engine.'''
         cfgs = self.cfgs()
         for cfg, lines in cfgs.items():
-            lines = '\n'.join(str(Cmd(*xs)) for xs in lines)
+            lines = '\n'.join(str(Cmd(xs)) for xs in lines)
             with open(cfg+'.cfg', 'w') as f:
                 f.write(lines + '\n')
 
