@@ -1,5 +1,6 @@
 # valvebanana.py
 
+import os
 
 class Cmd(tuple):
     def __str__(self):
@@ -8,7 +9,7 @@ class Cmd(tuple):
 
 
 class User(dict):
-    def __init__(self, kwargs):
+    def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
         self.cvars = {}
 
@@ -18,10 +19,13 @@ class User(dict):
     def write(self):
         '''Export this configuration as cfg files on disk, readable by
         the Source engine.'''
-        cfgs = self.cfgs()
-        for cfg, lines in cfgs.items():
+        # Create the 'vb/' directory if it's not already there.
+        if not os.path.exists('vb'):
+            os.mkdir('vb')
+        # Write the files.
+        for cfg, lines in self.cfgs().items():
             lines = '\n'.join(str(Cmd(xs)) for xs in lines)
-            with open(cfg+'.cfg', 'w') as f:
+            with open('vb/{}.cfg'.format(cfg), 'w') as f:
                 f.write(lines + '\n')
 
     def cfgs(self):
@@ -45,8 +49,8 @@ class User(dict):
         for mod in self.modmaps():
             if mod != 'init':
                 modbind = ('bind', mod, '+_'+mod)
-                dn = ('alias', '+_'+mod, 'exec {}.cfg'.format(mod+'_dn'))
-                up = ('alias', '-_'+mod, 'exec {}.cfg'.format(mod+'_up'))
+                dn = ('alias', '+_'+mod, 'exec vb/{}.cfg'.format(mod+'_dn'))
+                up = ('alias', '-_'+mod, 'exec vb/{}.cfg'.format(mod+'_up'))
                 cfgs['init'] += [modbind, dn, up]
 
         # Add our cvars to init.cfg.
