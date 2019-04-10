@@ -17,33 +17,17 @@ class Env(object):
     def __init__(self, bib=[]):
         self.bib = bib
 
-    def par(self, ss):
-        return '; '.join(self.sen(s) for s in ss)
-
-    def sen(self, ts):
-        return ' '.join(self.term(t) for t in ts)
-
-    def term(self, x):
-        return x if isinstance(x, str) else quote(self.subpar(x))
-
-    def subpar(self, ss):
-        return '; '.join(self.subsen(s) for s in ss)
-
-    def subsen(self, ts):
-        return ' '.join(self.subterm(t) for t in ts)
-
-    def subterm(self, x):
-        return x if isinstance(x, str) else self.ref(x)
-
-    def ref(self, x, prefix=''):
-        d = prefix + digest(x)
-        #reference = ('alias', d, x)
-        #self.bib.append(self.sen(reference))
-        self.alias(d, x)
-        return d
+    par = lambda self, xs: '; '.join(map(self.sen, xs))
+    sen = lambda self, xs: ' '.join(map(self.term, xs))
+    term = lambda self, x: x if isinstance(x, str) else quote(self.subpar(x))
+    subpar = lambda self, xs: '; '.join(map(self.subsen, xs))
+    subsen = lambda self, xs: ' '.join(map(self.subterm, xs))
+    subterm = lambda self, x: x if isinstance(x, str) else self.ref(x)[0]
+    ref = lambda self, x, prefix='': self.alias(digest(x), x)
 
     def alias(self, a, x):
         self.bib.append(self.sen(('alias', a, x)))
+        return a
 
 
 class Keeb(Env):
