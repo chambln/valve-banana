@@ -9,6 +9,11 @@ digest = lambda x: PREFIX + str(abs(hash(str(x))))[:3]
 
 
 class Env(object):
+    '''Writer environment.  Feed me paragraphs and
+    sentences, and I'll return the corresponding low-level
+    cfg strings while keeping a list of aliases (self.bib)
+    necessary for them to work.'''
+
     def __init__(self, bib=[]):
         self.bib = bib
 
@@ -35,6 +40,7 @@ class Env(object):
         reference = ('alias', d, x)
         self.bib.append(self.sen(reference))
         return d
+
 
 # Tests
 if __name__ == '__main__':
