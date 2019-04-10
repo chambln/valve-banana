@@ -42,32 +42,19 @@ class Env(object):
         return d
 
 
+class Keeb(Env):
+    '''Keyboard environment.'''   
+
+    def bind(self, k, dn):
+        b = ('bind', k, dn)
+        return(self.sen(b))
+
+
 # Tests
 if __name__ == '__main__':
-    # Test 1: complex sentence with no references.
-    env = Env()
-    print('\n** TEST 1 **')
-    p = [('bind', 'tab', [
-        ('+showscores',),
-        ('net_graphtext', '1'),
-        ('cl_showpos', '1'),
-    ]),]
-    print(env.par(p))
-    # -> bind tab "+showscores; net_graphtext 1; cl_showpos 1"
+    k = Keeb()
 
-    # Test 2: complex sentence: complex sentence with
-    # references.
-    print('\n** TEST 2 **')
-    env = Env()
-    rebinds = [
-        ('bind', 't', [('buy', 'awp')]),
-        (
-            'bind',
-            'space',
-            [('buy', 'kevlar'), ('cl_crosshaircolor', '0')],
-        )
-    ]
-    p = [('bind', 'mouse3', rebinds),]
-    print(env.par(p))
-    for i in env.bib:
+    print(k.bind('tab', '+showscores'))
+
+    for i in k.bib:
         print(i)
