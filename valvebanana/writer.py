@@ -9,10 +9,10 @@ digest = lambda x: PREFIX + str(abs(hash(str(x))))[:3]
 
 
 class Env(object):
-    '''Writer environment.  Feed me paragraphs and
-    sentences, and I'll return the corresponding low-level
-    cfg strings while keeping a list of aliases (self.bib)
-    necessary for them to work.'''
+    '''Writer environment. Feed me paragraphs and sentences,
+    and I'll return the  corresponding low-level cfg strings
+    while keeping a list of aliases (self.bib) necessary for
+    them to work.'''
 
     def __init__(self, bib=[]):
         self.bib = bib
@@ -36,7 +36,7 @@ class Keeb(Env):
     def bind(self, k, dn, up=None):
         if up:
             return self.sen(('bind', k, self.hold(dn, up)))
-        return self.sen('bind', k, dn)
+        return self.sen(('bind', k, dn))
 
     def hold(self, dn, up):
         dig = digest(dn)
@@ -46,21 +46,31 @@ class Keeb(Env):
 
 # Tests
 if __name__ == '__main__':
-    k = Keeb()
+    keeb = Keeb()
 
-    print(k.bind(
-        'tab',
-        dn=[
-            ('+showscores',),
-            ('net_graphtext', '1'),
-            ('cl_showpos', '1')
-        ],
-        up=[
-            ('-showscores',),
-            ('net_graphtext 0',),
-            ('cl_showpos', '0')
-        ])
-    )
+    binds = [
+        ('enter', 'say'),
+        ('shift', [
+                ('bind', 'enter', 'say_team'),
+                ('bind', 'k', 'kill'),
+                ('bind', 'tab', [
+                    ('+showscores',),
+                    ('net_graphtext', '1',),
+                    ('cl_showpos', '1',)
+                ]) 
+            ], [
+                ('bind', 'enter', 'say'),
+                ('bind', 'k', [
+                    ('foo',),
+                    ('bar',),
+                    ('baz',),
+                ]),
+                ('bind', 'tab', '+showscores')
+            ]
+        )
+    ]
 
-    for i in k.bib:
+    for i in binds:
+        print(keeb.bind(*i))
+    for i in keeb.bib:
         print(i)
