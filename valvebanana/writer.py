@@ -14,8 +14,14 @@ class Env(object):
 
     def paragraph(self, xs, nested=False):
         return '; '.join(
-            self.sentence(x, nested=nested) for x in xs
+            self.expand(x, nested=nested) for x in xs
         )
+
+    def expand(self, xs, nested=False):
+        cmd, args = xs[0], xs[1:]
+        if cmd == 'bind':
+            return self.bind(*args, nested=nested)
+        return self.sentence(xs, nested=nested)
 
     def sentence(self, xs, nested=False):
         return ' '.join(
@@ -31,24 +37,22 @@ class Env(object):
 
     def refer(self, dn, up=None):
         dig = digest((dn, up))
-        #dn = self.paragraph(dn, nested=True)
         if up is None:
             a = self.alias(dig, dn)
             self.bib.append(a)
             return dig
-        #up = self.paragraph(up, nested=True)
         self.bib.append(self.alias('+'+dig, dn))
         self.bib.append(self.alias('-'+dig, up))
         return '+' + dig
 
-    def bind(self, k, dn, up=None):
+    def bind(self, k, dn, up=None, nested=False):
         if up is None:
-            return self.sentence(('bind', k, dn))
+            return self.sentence(('bind', k, dn), nested=nested)
         ref = self.refer(dn, up)
-        return self.sentence(('bind', k, ref))
+        return self.sentence(('bind', k, ref), nested=nested)
 
-    def alias(self, name, par):
-        return self.sentence(('alias', name, par))
+    def alias(self, name, par, nested=False):
+        return self.sentence(('alias', name, par), nested=nested)
 
 
 
@@ -63,14 +67,15 @@ info_up = [
     ('-showscores',),
     ('net_graphtext', '0'),
     ('cl_showpos', '0'),
-#    ('bind', 'enter', [ ('god',), ('noclip',) ])
+    #('bind', 'enter', [ ('god',), ('noclip',) ])
 ]
 s = ('bind', 'shift', [
-    (e.bind('tab', info_dn, info_up),),
-    ('bind', 'enter', 'say_team',),
+    ('bind', 'tab', info_dn, info_up),
+    ('bind', 'enter', 'say_team'),
 ])
-#print(e.bind('tab', info_dn, info_up))
-#print(e.bind('enter', [('say',)], [('noclip',)]))
-print(e.sentence(s))
+#print(e.expand(('bind', 'enter', [('say',)], [('noclip',)])))
+print(e.expand(s))
+
+print('\nBIBLIOGRAPHY:')
 for i in e.bib:
     print(i)
