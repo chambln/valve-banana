@@ -3,74 +3,74 @@
 # Constants
 PREFIX = '_vb'
 
-# Utitlity functions
+# Utility functions
 quote = lambda x: '"{}"'.format(x)
 digest = lambda x: PREFIX + str(abs(hash(str(x))))[:3]
 
-
+# Writer functions
 class Env(object):
-    '''Writer environment. Feed me paragraphs and sentences,
-    and I'll return the  corresponding low-level cfg strings
-    while keeping a list of aliases (self.bib) necessary for
-    them to work.'''
-
     def __init__(self, bib=[]):
         self.bib = bib
 
-    par = lambda self, xs: '; '.join(map(self.sen, xs))
-    sen = lambda self, xs: ' '.join(map(self.term, xs))
-    term = lambda self, x: x if isinstance(x, str) else quote(self.subpar(x))
-    subpar = lambda self, xs: '; '.join(map(self.subsen, xs))
-    subsen = lambda self, xs: ' '.join(map(self.subterm, xs))
-    subterm = lambda self, x: x if isinstance(x, str) else self.ref(x)[0]
-    ref = lambda self, x, prefix='': self.alias(digest(x), x)
+    def paragraph(self, xs, nested=False):
+        return '; '.join(
+            self.sentence(x, nested=nested) for x in xs
+        )
 
-    def alias(self, a, x):
-        self.bib.append(self.sen(('alias', a, x)))
-        return a
+    def sentence(self, xs, nested=False):
+        return ' '.join(
+            self.term(x, nested=nested) for x in xs
+        )
 
+    def term(self, x, nested=False):
+        if isinstance(x, str):
+            return x
+        if nested:
+            return self.refer(x)
+        return quote(self.paragraph(x, nested=True))
 
-class Keeb(Env):
-    '''Keyboard environment.'''   
-
-    def bind(self, k, dn, up=None):
-        if up:
-            return self.sen(('bind', k, self.hold(dn, up)))
-        return self.sen(('bind', k, dn))
-
-    def hold(self, dn, up):
-        dig = digest(dn)
-        self.alias('+'+dig, dn)
-        self.alias('-'+dig, up)
+    def refer(self, dn, up=None):
+        dig = digest((dn, up))
+        #dn = self.paragraph(dn, nested=True)
+        if up is None:
+            a = self.alias(dig, dn)
+            self.bib.append(a)
+            return dig
+        #up = self.paragraph(up, nested=True)
+        self.bib.append(self.alias('+'+dig, dn))
+        self.bib.append(self.alias('-'+dig, up))
         return '+' + dig
 
-# Tests
-if __name__ == '__main__':
-    keeb = Keeb()
+    def bind(self, k, dn, up=None):
+        if up is None:
+            return self.sentence(('bind', k, dn))
+        ref = self.refer(dn, up)
+        return self.sentence(('bind', k, ref))
 
-    binds = [
-        ('enter', 'say'),
-        ('shift', [
-                ('bind', 'enter', 'say_team'),
-                ('bind', 'k', 'kill'),
-                ('bind', 'tab', [
-                    ('+showscores',),
-                    ('net_graphtext', '1',),
-                    ('cl_showpos', '1',)
-                ]) 
-            ], [
-                ('bind', 'enter', 'say'),
-                ('bind', 'k', [
-                    ('foo',),
-                    ('bar',),
-                    ('baz',),
-                ]),
-                ('bind', 'tab', '+showscores')
-            ]
-        )
-    ]
+    def alias(self, name, par):
+        return self.sentence(('alias', name, par))
 
-    for i in binds:
-        print(keeb.bind(*i))
-    for i in keeb.bib:
-        print(i)
+
+
+# Testing
+e = Env()
+info_dn = [
+    ('+showscores',),
+    ('net_graphtext', '1'),
+    ('cl_showpos', '1')
+]
+info_up = [
+    ('-showscores',),
+    ('net_graphtext', '0'),
+    ('cl_showpos', '0'),
+#    ('bind', 'enter', [ ('god',), ('noclip',) ])
+]
+s = ('bind', 'shift', [
+    (e.bind('tab', info_dn, info_up),),
+    ('bind', 'enter', 'say_team',),
+])
+#print(e.bind('tab', info_dn, info_up))
+#print(e.bind('enter', [('say',)], [('noclip',)]))
+print(e.sentence(s))
+for i in e.bib:
+    print(i)
