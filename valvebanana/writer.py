@@ -12,8 +12,8 @@ class Env(object):
     def __init__(self, bib=[]):
         self.bib = bib
 
-    def paragraph(self, xs, nested=False):
-        return '; '.join(
+    def paragraph(self, xs, nested=False, delimiter='; '):
+        return delimiter.join(
             self.expand(x, nested=nested) for x in xs
         )
 
