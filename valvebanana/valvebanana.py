@@ -5,7 +5,7 @@ PREFIX = '_vb'
 
 # Utility functions
 quote = lambda x: '"{}"'.format(x)
-digest = lambda x: PREFIX + str(abs(hash(str(x))))[:5]
+digest = lambda x: PREFIX + str(abs(hash(str(x))))[:2]
 
 # Writer functions
 class Env(object):
@@ -44,6 +44,14 @@ class Env(object):
     def _refer(self, dn, up=None):
         dig = digest((dn, up))
         if up is None:
+            f = lambda xs: any('+' in x for x in xs)
+            if any(map(f, dn)):
+                # Make an exception if dn contains a
+                # plus/minus bind.
+                r = lambda x: x.replace('+', '-')
+                up = (tuple(map(r, x)) for x in dn if f(x))
+                #return self._bind(k, dn, up)
+                return self._refer(dn, up)
             a = self.alias(dig, dn)
             self.bib.append(a)
             return dig
@@ -91,7 +99,7 @@ class Keymap(dict):
     
     def _bind(self, k, v):
         if isinstance(v, dict):
-            d = {i: self[i] if i in self else None for i in v}
+            d = {i: self[i] for i in v if i in self}
             binds_old = Keymap(d).binds()
             binds_new = Keymap(v).binds()
             return ('bind', k, binds_new, binds_old)
@@ -143,29 +151,37 @@ def test_env():
 
 # Test Keymap
 def test_keymap():
-    if __name__ == '__main__':
-        print('EXAMPLE: q to drop, but shift-q to drop C4')
-        drop_bomb = [
-            ('use', 'weapon_knife'),
-            ('use', 'weapon_c4'),
-            ('drop',),
-            ('slot1',)
-        ]
-        km = Keymap(**{})
-        km.bind('enter', 'say')
-        km.bind('q', 'drop')
-        km.bind('shift-enter', 'say_team')
-        km.bind('shift-q', drop_bomb)
-        km.bind('shift-tab', [
-            ('+showscores',),
-            ('net_graphtext', '1'),
-            ('cl_showpos', '1')
-        ], [
-            ('-showscores',),
-            ('net_graphtext', '0'),
-            ('cl_showpos', '0')
-        ])
-        #km.bind('ctrl-alt-shift-r', [('mp_restartgame', '1')])
-        #km.bind('alt', '+speed')
-        #km.bind('alt-space', '+duck')
-        print(km.expand())
+    print('EXAMPLE: q to drop, but shift-q to drop C4')
+    km = Keymap()
+    drop_bomb = [
+        ('use', 'weapon_knife'),
+        ('use', 'weapon_c4'),
+        ('drop',),
+        ('slot1',)
+    ]
+    km.bind('enter', 'say')
+    km.bind('q', 'drop')
+    km.bind('shift-enter', 'say_team')
+    km.bind('shift-q', drop_bomb)
+    km.bind('shift-tab', [
+        ('+showscores',),
+        ('net_graphtext', '1'),
+        ('cl_showpos', '1')
+    ], [
+        ('-showscores',),
+        ('net_graphtext', '0'),
+        ('cl_showpos', '0')
+    ])
+    #km.bind('ctrl-alt-shift-r', [('mp_restartgame', '1')])
+    #km.bind('alt', '+speed')
+    #km.bind('alt-space', '+duck')
+    print(km.expand())
+
+def test_keymap2():
+    km = Keymap()
+    km.bind('f', [('+moveright',), ('r_cleardecals',)])
+    km.bind('shift-f', [('buy', 'ak47')])
+    print(km.expand())
+
+if __name__ == '__main__':
+    test_keymap2()
