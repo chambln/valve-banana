@@ -5,12 +5,15 @@ PREFIX = '_vb'
 
 # Utility functions
 quote = lambda x: '"{}"'.format(x)
-digest = lambda x: PREFIX + str(abs(hash(str(x))))[:3]
+digest = lambda x: PREFIX + str(abs(hash(str(x))))[:5]
 
 # Writer functions
 class Env(object):
     def __init__(self, bib=[]):
         self.bib = bib
+
+    def bibliography(self):
+        return '\n'.join(self.bib)
 
     def paragraph(self, xs, nested=False, delimiter='; '):
         return delimiter.join(
