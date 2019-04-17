@@ -47,10 +47,11 @@ class Env(object):
             f = lambda xs: any('+' in x for x in xs)
             if any(map(f, dn)):
                 # Make an exception if dn contains a
-                # plus/minus bind.
+                # plus/minus bind.  Releasing k should
+                # execute the minus equivalents of any plus
+                # sentences.
                 r = lambda x: x.replace('+', '-')
                 up = (tuple(map(r, x)) for x in dn if f(x))
-                #return self._bind(k, dn, up)
                 return self._refer(dn, up)
             a = self.alias(dig, dn)
             self.bib.append(a)
