@@ -4,6 +4,8 @@ import writer
 
 class Keymap(dict):
     def bind(self, ks, dn, up=None):
+        '''Associates a key combination (ks) to a command
+        (dn, up).'''
         if len(ks) == 1:
             self[k] = (dn, up)
         else:
@@ -15,13 +17,14 @@ class Keymap(dict):
     def expand(self):
         '''Returns a paragraph of ('bind', ...) sentences
         which completely implement this keymap.'''
-        return [('bind', k, *self._expand_val(v))
-                for k, v in self.items()]
+        return [self._bind(k, v) for k, v in self.items()]
     
-    def _expand_val(self, v):
+    def _bind(self, k, v):
         if isinstance(v, dict):
-            return Keymap(v).expand(), None
-        return v
+            binds_old = Keymap(**{i: self[i] for i in v}).expand()
+            binds_new = Keymap(v).expand()
+            return ('bind', k, binds_new, binds_old)
+        return ('bind', k, *v)
 
 
 # Testing
