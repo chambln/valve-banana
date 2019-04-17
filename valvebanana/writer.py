@@ -20,22 +20,22 @@ class Env(object):
     def expand(self, xs, nested=False):
         cmd, args = xs[0], xs[1:]
         if cmd == 'bind':
-            return self.bind(*args, nested=nested)
-        return self.sentence(xs, nested=nested)
+            return self._bind(*args, nested=nested)
+        return self._sentence(xs, nested=nested)
 
-    def sentence(self, xs, nested=False):
+    def _sentence(self, xs, nested=False):
         return ' '.join(
-            self.term(x, nested=nested) for x in xs
+            self._term(x, nested=nested) for x in xs
         )
 
-    def term(self, x, nested=False):
+    def _term(self, x, nested=False):
         if isinstance(x, str):
             return x
         if nested:
-            return self.refer(x)
+            return self._refer(x)
         return quote(self.paragraph(x, nested=True))
 
-    def refer(self, dn, up=None):
+    def _refer(self, dn, up=None):
         dig = digest((dn, up))
         if up is None:
             a = self.alias(dig, dn)
@@ -45,14 +45,14 @@ class Env(object):
         self.bib.append(self.alias('-'+dig, up))
         return '+' + dig
 
-    def bind(self, k, dn, up=None, nested=False):
+    def _bind(self, k, dn, up=None, nested=False):
         if up is None:
-            return self.sentence(('bind', k, dn), nested=nested)
-        ref = self.refer(dn, up)
-        return self.sentence(('bind', k, ref), nested=nested)
+            return self._sentence(('bind', k, dn), nested=nested)
+        ref = self._refer(dn, up)
+        return self._sentence(('bind', k, ref), nested=nested)
 
     def alias(self, name, par, nested=False):
-        return self.sentence(('alias', name, par), nested=nested)
+        return self._sentence(('alias', name, par), nested=nested)
 
 
 
@@ -93,5 +93,6 @@ if __name__ == '__main__':
     }
     dn = [('bind', k, [('buy', wpn)]) for k, wpn in buynds_dn.items()]
     up = [('bind', k, cmd)            for k, cmd in buynds_up.items()]
-    print(env.bind('mouse3', dn, up))
+    s = ('bind', 'mouse3', dn, up)
+    print(env.expand(s))
     [print(i) for i in env.bib]
