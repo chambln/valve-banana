@@ -6,13 +6,14 @@ class Keymap(dict):
     def bind(self, ks, dn, up=None):
         '''Associates a key combination (ks) to a command
         (dn, up).'''
-        if len(ks) == 1:
-            self[k] = (dn, up)
-        else:
-            k, ks = k[0], ks[1:]
-            if k not in keymap:
+        ks = ks.split('-')
+        k, ks = ks[0], ks[1:]
+        if ks:
+            if k not in self:
                 self[k] = Keymap()
-            self[k].bind(ks, dn, up)
+            self[k].bind('-'.join(ks), dn, up)
+        else:
+            self[k] = (dn, up)
 
     def expand(self):
         '''Returns a paragraph of ('bind', ...) sentences
@@ -21,9 +22,12 @@ class Keymap(dict):
     
     def _bind(self, k, v):
         if isinstance(v, dict):
-            binds_old = Keymap(**{i: self[i] for i in v}).expand()
+            d = {i: self[i] if i in self else None for i in v}
+            binds_old = Keymap(**d).expand()
             binds_new = Keymap(v).expand()
             return ('bind', k, binds_new, binds_old)
+        if v is None:
+            return ('unbind', k)
         return ('bind', k, *v)
 
 
@@ -36,15 +40,24 @@ if __name__ == '__main__':
         ('drop',),
         ('slot1',)
     ]
-    keymap = {
-        'enter': ('say', None),
-        'q': ('drop', None),
-        'shift': {
-            'enter': ('say_team', None),
-            'q': (drop_bomb, None)
-        }
-    }
-    km = Keymap(**keymap)
+
+    km = Keymap(**{})
+    km.bind('enter', 'say')
+    km.bind('q', 'drop')
+    km.bind('shift-enter', 'say_team')
+    km.bind('shift-q', drop_bomb)
+    km.bind('shift-tab', [
+        ('+showscores',),
+        ('net_graphtext', '1'),
+        ('cl_showpos', '1')
+    ], [
+        ('-showscores',),
+        ('net_graphtext', '0'),
+        ('cl_showpos', '0')
+    ])
+    #km.bind('ctrl-alt-shift-r', [('mp_restartgame', '1')])
+    #km.bind('alt', '+speed')
+    #km.bind('alt-space', '+duck')
     binds = km.expand()
     env = writer.Env()
     print(env.paragraph(binds, delimiter='\n'))

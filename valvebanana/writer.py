@@ -13,8 +13,7 @@ class Env(object):
         self.bib = bib
 
     def paragraph(self, xs, nested=False, delimiter='; '):
-        return delimiter.join(
-            self.expand(x, nested=nested) for x in xs
+        return delimiter.join( self.expand(x, nested=nested) for x in xs
         )
 
     def expand(self, xs, nested=False):
