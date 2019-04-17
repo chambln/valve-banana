@@ -5,7 +5,7 @@ PREFIX = '_vb'
 
 # Utility functions
 quote = lambda x: '"{}"'.format(x)
-digest = lambda x: PREFIX + str(abs(hash(str(x))))[:2]
+digest = lambda x: PREFIX + str(abs(hash(str(x))))[:5]
 
 # Writer functions
 class Env(object):
