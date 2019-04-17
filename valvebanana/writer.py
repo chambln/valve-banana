@@ -57,25 +57,41 @@ class Env(object):
 
 
 # Testing
-e = Env()
-info_dn = [
-    ('+showscores',),
-    ('net_graphtext', '1'),
-    ('cl_showpos', '1')
-]
-info_up = [
-    ('-showscores',),
-    ('net_graphtext', '0'),
-    ('cl_showpos', '0'),
-    #('bind', 'enter', [ ('god',), ('noclip',) ])
-]
-s = ('bind', 'shift', [
-    ('bind', 'tab', info_dn, info_up),
-    ('bind', 'enter', 'say_team'),
-])
-#print(e.expand(('bind', 'enter', [('say',)], [('noclip',)])))
-print(e.expand(s))
+if __name__ == '__main__':
+    print('TESTS:')
+    env = Env()
+    info_dn = [
+        ('+showscores',),
+        ('net_graphtext', '1'),
+        ('cl_showpos', '1')
+    ]
+    info_up = [
+        ('-showscores',),
+        ('net_graphtext', '0'),
+        ('cl_showpos', '0'),
+        #('bind', 'enter', [ ('god',), ('noclip',) ]),
+        #('bind', 'enter', [ ('god',)], [('noclip',) ]),
+    ]
+    s = ('bind', 'shift', [
+        ('bind', 'tab', info_dn, info_up),
+        ('bind', 'enter', 'say_team'),
+    ])
+    #print(env.expand(('bind', 'enter', [('say',)], [('noclip',)])))
+    print(env.expand(s))
+    [print(i) for i in env.bib]
 
-print('\nBIBLIOGRAPHY:')
-for i in e.bib:
-    print(i)
+    # Example: Buy binds.
+    print('\nEXAMPLE: BUY BINDS')
+    env.bib = []  # Clear bibliography of previous references.
+    buynds_dn = {
+        'd': 'defuser',
+        't': 'tec9'
+    }
+    buynds_up = {
+        'd': '+moveright',
+        't': 'say'
+    }
+    dn = [('bind', k, [('buy', wpn)]) for k, wpn in buynds_dn.items()]
+    up = [('bind', k, cmd)            for k, cmd in buynds_up.items()]
+    print(env.bind('mouse3', dn, up))
+    [print(i) for i in env.bib]
