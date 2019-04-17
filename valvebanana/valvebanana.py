@@ -46,12 +46,8 @@ class Env(object):
         if up is None:
             f = lambda xs: any('+' in x for x in xs)
             if any(map(f, dn)):
-                # Make an exception if dn contains a
-                # plus/minus bind.  Releasing k should
-                # execute the minus equivalents of any plus
-                # sentences.
-                r = lambda x: x.replace('+', '-')
-                up = (tuple(map(r, x)) for x in dn if f(x))
+                # Make an exception if dn contains a plus/minus bind.
+                up = self._negate(dn)
                 return self._refer(dn, up)
             a = self.alias(dig, dn)
             self.bib.append(a)
@@ -59,6 +55,14 @@ class Env(object):
         self.bib.append(self.alias('+'+dig, dn))
         self.bib.append(self.alias('-'+dig, up))
         return '+' + dig
+
+    def _negate(self, sentence):
+        '''Return a paragraph of ('-foo', ...) counterparts
+        for each ('+foo', ...) sentence.'''
+        has_plus = lambda xs: any('+' in x for x in xs)
+        r = lambda x: x.replace('+', '-')
+        return [tuple(map(r, x)) for x in sentence if has_plus(x)]
+
 
     def _bind(self, k, dn, up=None, nested=False):
         if up is None:
