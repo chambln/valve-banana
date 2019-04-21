@@ -1,4 +1,4 @@
-# writer.py
+# valvebanana.py
 
 # Constants
 PREFIX = '_vb'
